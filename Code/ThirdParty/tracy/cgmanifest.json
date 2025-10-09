@@ -1,0 +1,16 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "Name": "tracy",
+          "repositoryUrl": "https://github.com/wolfpld/tracy",
+          "commitHash": "c556831ddc6fe26d2fce01c14c97205a9dad46d5"
+        },
+		"version": "0.12.2"
+      }
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
+}

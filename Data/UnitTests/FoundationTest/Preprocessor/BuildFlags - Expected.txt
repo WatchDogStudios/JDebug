@@ -1,0 +1,6 @@
+Processing succeeded
+
+
+
+
+struct nsImageConversionFlags      {        static const nsUInt32 Count = 3;        typedef nsUInt8 StorageType;     enum Enum        {          None = (1U << (0)), InPlace = (1U << (1)), Lossy = (1U << (2)),        };        struct Bits        {          StorageType None : 1; StorageType InPlace : 1; StorageType Lossy : 1;        };        const char* ToString(nsUInt32 value)   {     switch (value)     {       case None: return "None"; case InPlace: return "InPlace"; case Lossy: return "Lossy";       default: return nullptr;     }   }   };      inline nsBitflags<nsImageConversionFlags> operator|(nsImageConversionFlags::Enum lhs, nsImageConversionFlags::Enum rhs)      {        return (nsBitflags<nsImageConversionFlags>(lhs) | nsBitflags<nsImageConversionFlags>(rhs));      }     inline nsBitflags<nsImageConversionFlags> operator&(nsImageConversionFlags::Enum lhs, nsImageConversionFlags::Enum rhs)      {        return (nsBitflags<nsImageConversionFlags>(lhs) & nsBitflags<nsImageConversionFlags>(rhs));      };

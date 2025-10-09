@@ -1,0 +1,68 @@
+#include <Core/CorePCH.h>
+
+NS_STATICLINK_LIBRARY(Core)
+{
+  if (bReturn)
+    return;
+
+  NS_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionComponent);
+  NS_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionResource);
+  NS_STATICLINK_REFERENCE(Core_Configuration_Implementation_PlatformProfile);
+  NS_STATICLINK_REFERENCE(Core_Curves_Implementation_ColorGradientResource);
+  NS_STATICLINK_REFERENCE(Core_Curves_Implementation_Curve1DResource);
+  NS_STATICLINK_REFERENCE(Core_GameApplication_Implementation_GameApplicationBase);
+  NS_STATICLINK_REFERENCE(Core_GameState_Implementation_ForwardEventsToGameStateComponent);
+  NS_STATICLINK_REFERENCE(Core_GameState_Implementation_GameStateBase);
+  NS_STATICLINK_REFERENCE(Core_Graphics_Implementation_Camera);
+  NS_STATICLINK_REFERENCE(Core_Graphics_Implementation_Spline);
+  NS_STATICLINK_REFERENCE(Core_Input_DeviceTypes_DeviceTypes);
+  NS_STATICLINK_REFERENCE(Core_Input_Implementation_InputDevice);
+  NS_STATICLINK_REFERENCE(Core_Input_Implementation_Startup);
+  NS_STATICLINK_REFERENCE(Core_Input_Implementation_VirtualThumbStick);
+  NS_STATICLINK_REFERENCE(Core_Interfaces_NavmeshGeoWorldModule);
+  NS_STATICLINK_REFERENCE(Core_Interfaces_PhysicsWorldModule);
+  NS_STATICLINK_REFERENCE(Core_Interfaces_SoundInterface);
+  NS_STATICLINK_REFERENCE(Core_Interfaces_WindWorldModule);
+  NS_STATICLINK_REFERENCE(Core_Messages_Implementation_ApplyOnlyToMessage);
+  NS_STATICLINK_REFERENCE(Core_Messages_Implementation_EventMessage);
+  NS_STATICLINK_REFERENCE(Core_Messages_Implementation_Messages);
+  NS_STATICLINK_REFERENCE(Core_Messages_Implementation_SetColorMessage);
+  NS_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResource);
+  NS_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResourceDescriptor);
+  NS_STATICLINK_REFERENCE(Core_Platform_Android_InputDevice_Android);
+  NS_STATICLINK_REFERENCE(Core_Platform_GLFW_ControllerInput_GLFW);
+  NS_STATICLINK_REFERENCE(Core_Platform_GLFW_InputDevice_GLFW);
+  NS_STATICLINK_REFERENCE(Core_Platform_GLFW_Window_GLFW);
+  NS_STATICLINK_REFERENCE(Core_Platform_Win_InputDevice_Win);
+  NS_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabReferenceComponent);
+  NS_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabResource);
+  NS_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_Resource);
+  NS_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceManager);
+  NS_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptAttributes);
+  NS_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptClassResource);
+  NS_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptComponent);
+  NS_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptCoroutine);
+  NS_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptWorldModule);
+  NS_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_MoveTo);
+  NS_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_TweenProperty);
+  NS_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_Wait);
+  NS_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_CVar);
+  NS_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Log);
+  NS_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Physics);
+  NS_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Prefabs);
+  NS_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_StableRandom);
+  NS_STATICLINK_REFERENCE(Core_System_Implementation_WindowManager);
+  NS_STATICLINK_REFERENCE(Core_Utils_Implementation_Blackboard);
+  NS_STATICLINK_REFERENCE(Core_Utils_Implementation_CustomData);
+  NS_STATICLINK_REFERENCE(Core_Utils_Implementation_IntervalScheduler);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_Component);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_ComponentManager);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_Declarations);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_EventMessageHandlerComponent);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_GameObject);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_SettingsComponent);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_SpatialSystem);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_SpatialSystem_RegularGrid);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_World);
+  NS_STATICLINK_REFERENCE(Core_World_Implementation_WorldModule);
+}

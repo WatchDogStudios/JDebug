@@ -1,0 +1,43 @@
+#include "Includes\BlackMagic.txt"
+
+#define NS_ENUM_VALUE_TO_STRING(name) \
+  case name: return NS_STRINGIZE(name);
+#define NS_ENUM_TO_STRING(...) \
+  const char* ToString(nsUInt32 value) \
+  { \
+    switch (value) \
+    { \
+      NS_EXPAND_ARGS(NS_ENUM_VALUE_TO_STRING, ##__VA_ARGS__) \
+      default: return nullptr; \
+    } \
+  }
+#define NS_DECLARE_FLAGS_OPERATORS(FlagsType) \
+  inline nsBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
+  {    \
+    return (nsBitflags<FlagsType>(lhs) | nsBitflags<FlagsType>(rhs));    \
+  } \
+  \
+  inline nsBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
+  {    \
+    return (nsBitflags<FlagsType>(lhs) & nsBitflags<FlagsType>(rhs));    \
+  }
+#define NS_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...)    \
+struct BitflagsTypeName    \
+  {    \
+    static const nsUInt32 Count = NS_VA_NUM_ARGS(__VA_ARGS__);    \
+    typedef InternalStorageType StorageType; \
+    enum Enum    \
+    {    \
+      NS_EXPAND_ARGS_WITH_INDEX(NS_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)    \
+    };    \
+    struct Bits    \
+    {    \
+      NS_EXPAND_ARGS(NS_DECLARE_FLAGS_BITS, ##__VA_ARGS__)    \
+    };    \
+    NS_ENUM_TO_STRING(__VA_ARGS__) \
+  };    \
+  NS_DECLARE_FLAGS_OPERATORS(BitflagsTypeName)
+#define NS_DECLARE_FLAGS_ENUM(name, n)    name = NS_BIT(n),
+#define NS_DECLARE_FLAGS_BITS(name)       StorageType name : 1;  
+
+NS_DECLARE_FLAGS(nsUInt8, nsImageConversionFlags, None, InPlace, Lossy);

@@ -1,0 +1,244 @@
+/* JDebugApp Dark Theme */
+
+QWidget {
+  background-color: #1e1f22;
+  color: #f2f4f7;
+  selection-background-color: #3d7cff;
+  selection-color: #ffffff;
+  font-family: "Segoe UI", "Open Sans", sans-serif;
+  font-size: 10.5pt;
+}
+
+QMainWindow::separator {
+  background: #2f3035;
+  width: 1px;
+  height: 1px;
+}
+
+QMenuBar {
+  background-color: #232429;
+  color: #f2f4f7;
+  padding: 4px 8px;
+  border-bottom: 1px solid #2f3035;
+}
+
+QMenuBar::item {
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+QMenuBar::item:selected {
+  background: #3d7cff;
+  color: #ffffff;
+}
+
+QMenu {
+  background-color: #232429;
+  border: 1px solid #2f3035;
+  padding: 6px 0;
+}
+
+QMenu::item {
+  padding: 6px 24px 6px 18px;
+  color: #f2f4f7;
+}
+
+QMenu::item:selected {
+  background-color: #315fcc;
+  color: #ffffff;
+}
+
+QToolBar {
+  background-color: #232429;
+  spacing: 8px;
+  padding: 6px;
+  border: none;
+}
+
+QToolBar::separator {
+  background: #2f3035;
+  width: 1px;
+  margin: 0 6px;
+}
+
+QToolButton {
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: #f2f4f7;
+}
+
+QToolButton:hover {
+  background: #2a2b32;
+}
+
+QToolButton:pressed {
+  background: #3d7cff;
+  color: #ffffff;
+}
+
+QPushButton {
+  background-color: #2a2b32;
+  border: 1px solid #3d3e42;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: #f2f4f7;
+  font-weight: 500;
+}
+
+QPushButton:hover {
+  background-color: #34363d;
+}
+
+QPushButton:pressed {
+  background-color: #3d7cff;
+  border-color: #3d7cff;
+  color: #ffffff;
+}
+
+QPushButton:disabled {
+  background-color: #26272c;
+  color: #6a6b70;
+  border-color: #303136;
+}
+
+QSlider::groove:horizontal {
+  background: #2f3035;
+  height: 5px;
+  border-radius: 3px;
+}
+
+QSlider::sub-page:horizontal {
+  background: #3d7cff;
+  border-radius: 3px;
+}
+
+QSlider::add-page:horizontal {
+  background: #2f3035;
+  border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+  background: #3d7cff;
+  width: 16px;
+  height: 16px;
+  margin: -6px 0;
+  border-radius: 8px;
+}
+
+QSlider::handle:horizontal:hover {
+  background: #5a8cff;
+}
+
+QTableWidget, QTableView {
+  background-color: #232429;
+  alternate-background-color: #1b1c20;
+  gridline-color: #2a2b32;
+  border: 1px solid #2f3035;
+  selection-background-color: #3d7cff;
+  selection-color: #ffffff;
+}
+
+QTableWidget::item:selected, QTableView::item:selected {
+  color: #ffffff;
+}
+
+QHeaderView::section {
+  background-color: #2a2b32;
+  color: #c4c9d3;
+  padding: 8px;
+  border: none;
+  border-right: 1px solid #2f3035;
+}
+
+QHeaderView::section:last {
+  border-right: none;
+}
+
+QAbstractItemView {
+  outline: 0;
+}
+
+QScrollBar:vertical {
+  background: #1e1f22;
+  width: 14px;
+  margin: 4px 0 4px 0;
+  border-radius: 7px;
+}
+
+QScrollBar::handle:vertical {
+  background: #3a3b41;
+  min-height: 28px;
+  border-radius: 7px;
+}
+
+QScrollBar::handle:vertical:hover {
+  background: #45464d;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+  height: 0;
+}
+
+QScrollBar:horizontal {
+  background: #1e1f22;
+  height: 14px;
+  margin: 0 4px 0 4px;
+  border-radius: 7px;
+}
+
+QScrollBar::handle:horizontal {
+  background: #3a3b41;
+  min-width: 28px;
+  border-radius: 7px;
+}
+
+QScrollBar::handle:horizontal:hover {
+  background: #45464d;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+  width: 0;
+}
+
+QStatusBar {
+  background-color: #1a1b1f;
+  color: #9ba0aa;
+  border-top: 1px solid #2a2b32;
+}
+
+QDockWidget {
+  background-color: #232429;
+  titlebar-close-icon: none;
+  titlebar-normal-icon: none;
+  border: 1px solid #2f3035;
+}
+
+QDockWidget::title {
+  background-color: #1a1b1f;
+  padding: 8px 12px;
+  color: #c4c9d3;
+}
+
+QLabel {
+  color: #cfd4dc;
+}
+
+QLineEdit, QAbstractSpinBox {
+  background-color: #1b1c20;
+  border: 1px solid #303136;
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: #f2f4f7;
+}
+
+QMessageBox {
+  background-color: #232429;
+}
+
+QMessageBox QLabel {
+  color: #f2f4f7;
+}

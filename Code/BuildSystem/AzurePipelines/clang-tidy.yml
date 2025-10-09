@@ -1,0 +1,108 @@
+name: WDFramework_ClangTidyVerification_$(Date:yyyyMMdd)$(Rev:.r)
+
+parameters:
+  - name: cleanWorkspace
+    displayName: 'Clean Workspace'
+    type: boolean
+    default: false
+
+trigger:
+  branches:
+    include:
+    - dev
+    exclude:
+    - release
+
+jobs:
+- job: StartVM
+  displayName: StartVM
+  pool:
+    vmImage: 'windows-2022'
+  steps:
+  - checkout: none
+  - task: AzureKeyVault@2
+    displayName: 'Azure Key Vault: nsKeys'
+    inputs:
+      ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
+      KeyVaultName: nsKeys
+      SecretsFilter: AzureFunctionKey
+  - task: PowerShell@2
+    displayName: StartVM
+    continueOnError: true
+    inputs:
+      targetType: inline
+      script: Invoke-RestMethod -Uri "https://nsengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Windows10-1809"
+
+- job: ClangTidyVerification
+  timeoutInMinutes: 120
+  pool:
+    name: Default
+    demands:
+    - Agent.OS -equals Windows_NT
+    - VM
+  steps:
+  - task: CmdLine@2
+    displayName: Free Disk Space
+    inputs:
+      script: dir C:\
+  
+  - checkout: self
+    submodules: recursive
+    lfs: true
+    clean: ${{ parameters.cleanWorkspace }}
+
+  - task: PowerShell@2
+    displayName: 'Set targetBranch variable'
+    inputs:
+      pwsh: true
+      targetType: 'inline'
+      script: |
+        $targetBranch = if ($env:SYSTEM_PULLREQUEST_TARGETBRANCH) {
+          "$(system.pullRequest.targetBranch)"
+          Write-Host "This is a pull request"
+        } else {
+          "dev"
+        }
+        Write-Host "##vso[task.setvariable variable=targetBranch]$targetBranch"
+        Write-Host "Target branch set to: $targetBranch"
+
+  - pwsh: |
+      git fetch --no-recurse-submodules --depth=100 origin $(targetBranch)
+      $curCommit = $(git rev-parse HEAD)
+      git fetch --no-recurse-submodules --depth=100 origin $curCommit
+      ./Utilities/clang-tidy/SetupWorkspace.ps1
+    displayName: 'Download LLVM & Run CMake'
+  
+  - task: CmdLine@2
+    displayName: Free Disk Space
+    inputs:
+      script: dir C:\
+  
+  - task: PowerShell@2
+    displayName: 'Run clang-tidy'
+    inputs:
+      pwsh: true
+      targetType: filePath
+      filePath: './Utilities/clang-tidy/RunClangTidy.ps1'
+      arguments: '-DiffTo "origin/$(targetBranch)" -LlvmInstallDir "$pwd\llvm" -Workspace "Workspace/clang-tidy" -Vso'
+  
+  - task: PowerShell@2
+    displayName: 'Fetch suggested changes'
+    condition: always()
+    inputs:
+      pwsh: true
+      targetType: 'inline'
+      script: |
+        # Changes done by clang tidy on MemberProperty.h are always incorrect
+        git checkout "Code/Engine/Foundation/Reflection/Implementation/MemberProperty.h"
+        if(@(git status -s --untracked-files=no).Length -gt 0)
+        {
+          Write-Host "##vso[task.logissue type=error]clang-tidy suggested changes. Clang tidy check failed! See artifact 'clang-tidy.patch' for suggested changes. Apply patch with: git apply clang-tidy.patch" -foreground red
+          git diff | Out-File -Encoding utf8NoBOM -FilePath "$(Build.ArtifactStagingDirectory)\clang-tidy.patch"
+        }
+  
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: Suggested Changes'
+    inputs:
+      ArtifactName: 'Suggested Changes'
+    condition: failed()

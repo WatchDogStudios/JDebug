@@ -1,0 +1,224 @@
+parameters:
+  - name: useVM
+    displayName: 'Start VM before build'
+    type: boolean
+    default: false
+
+trigger:
+  branches:
+    include:
+    - dev
+
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: dev
+
+variables:
+  - name: unityfiles
+    value: true
+  - name: useXvfb
+    value: false
+
+jobs:
+- ${{ if eq(parameters.useVM, true) }}:
+  - job: StartVM
+    displayName: StartVM
+    pool:
+      vmImage: 'windows-2022'
+    steps:
+    - checkout: none
+    - task: AzureKeyVault@2
+      displayName: 'Azure Key Vault: nsKeys'
+      inputs:
+        ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
+        KeyVaultName: nsKeys
+        SecretsFilter: AzureFunctionKey
+    - task: PowerShell@2
+      displayName: StartVM
+      continueOnError: true
+      inputs:
+        targetType: inline
+        script: Invoke-RestMethod -Uri "https://nsengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Ubuntu-22.04"
+
+- job: Linux_x64
+  timeoutInMinutes: 120
+  displayName: Linux-x64
+  pool:
+    name: Default
+    demands:
+    - Agent.OS -equals Linux
+    - GPU
+  steps:
+  - checkout: self
+    submodules: true
+    lfs: true
+  - task: PowerShell@2
+    displayName: Check force clean
+    inputs:
+      targetType: inline
+      script: |
+        $pathA = Join-Path $(System.DefaultWorkingDirectory) "gitClean.txt"
+        $pathB = Join-Path $(System.DefaultWorkingDirectory) "gitCleanCopy.txt"
+        $clean = -not (Test-Path $pathB) -or (compare-object (get-content $pathA) (get-content $pathB))
+        if ($clean)
+        {
+            Write-Host "Cleaning repo!"
+            git clean -dfx
+            Copy-Item -Path $pathA -Destination $pathB
+        }
+  
+  - task: Bash@3
+    displayName: Setup
+    inputs:
+      targetType: inline
+      script: | 
+        sudo apt-get update
+        sudo apt-get install -y systemd-coredump vulkan-tools # xvfb lightdm
+        sudo ./RunCMake.sh --setup --no-cmake --force
+  
+  - task: Bash@3
+    displayName: Configure Dumps
+    inputs:
+      targetType: inline
+      script: |
+        ulimit -c unlimited
+        sudo systemctl stop apport.service
+        sudo systemctl disable apport.service
+        cat /proc/sys/kernel/core_pattern
+        sudo sysctl -w kernel.core_pattern="$(System.DefaultWorkingDirectory)/Output/Bin/LinuxMakeGccDev64/core_%e.%p_%t.dmp"
+        cat /proc/sys/kernel/core_pattern
+        coredumpctl list
+        rm $(System.DefaultWorkingDirectory)/Output/Bin/LinuxMakeGccDev64/core_*
+        rm $(System.DefaultWorkingDirectory)/Output/Bin/LinuxMakeGccDev64/*.dmp
+        echo --End--
+  
+  - task: Bash@3
+    displayName: Info
+    inputs:
+      targetType: inline
+      script: |
+        lscpu | grep -E '^Thread|^Core|^Socket|^CPU\('
+        git config --list
+        dpkg --list | grep compiler
+        vulkaninfo --summary
+        xrandr --current
+
+  - task: PowerShell@2
+    displayName: Check Qt Directory
+    inputs:
+      targetType: inline
+      script: |
+        if (Test-Path -Path "/opt/qt/6.4.3/gcc_64") {
+          Write-Host "##vso[task.setvariable variable=qtdir]/opt/qt/6.4.3/gcc_64"
+          Write-Host "Qt directory exists at /opt/qt/6.4.3/gcc_64"
+        } else {
+          Write-Host "##vso[task.setvariable variable=qtdir]"
+          Write-Host "Qt directory not found at /opt/qt/6.4.3/gcc_64, using default Qt directory"
+        }
+
+  - task: CMake@1
+    displayName: CMake
+    inputs:
+      cmakeArgs: --preset linux-gcc-dev -DNS_QT_DIR=$(qtdir) -DNS_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) ../
+  
+  - task: Bash@3
+    displayName: Build
+    inputs:
+      targetType: inline
+      script: ninja -C Workspace/linux-gcc-dev
+
+  - task: PowerShell@2
+    displayName: Check build result
+    inputs:
+      targetType: inline
+      script: Write-Host "##vso[task.setvariable variable=task.MSBuild.status]success"
+
+  - task: Bash@3
+    displayName: FoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: |
+        ./Output/Bin/LinuxNinjaGccDev64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
+
+  - task: Bash@3
+    displayName: CoreTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: |
+        if [ "$(useXvfb)" = "true" ]; then
+          killall Xvfb
+          sleep 1
+          export DISPLAY=:1
+          Xvfb :1 -screen 0 1024x768x24 &
+          sleep 1
+          exec lightdm-session &
+          sleep 2
+        fi
+        ./Output/Bin/LinuxNinjaGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
+
+  - task: Bash@3
+    displayName: ToolsFoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: |
+        ./Output/Bin/LinuxNinjaGccDev64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
+
+  - task: Bash@3
+    displayName: RendererTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: |
+        if [ "$(useXvfb)" = "true" ]; then
+          export DISPLAY=:1
+          export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
+        fi
+        sudo sysctl -w kernel.yama.ptrace_scope=0 # Required for shared texture access
+        ./Output/Bin/LinuxNinjaGccDev64/RendererTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/RendererTest
+
+  - task: Bash@3
+    displayName: EditorTest
+    timeoutInMinutes: 60
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: |
+        if [ "$(useXvfb)" = "true" ]; then
+          export DISPLAY=:1
+          export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
+        fi
+        ./Output/Bin/LinuxNinjaGccDev64/EditorTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/EditorTest
+        
+  - task: Bash@3
+    displayName: GameEngineTest
+    timeoutInMinutes: 60
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: inline
+      script: |
+        if [ "$(useXvfb)" = "true" ]; then
+          export DISPLAY=:1
+          export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
+        fi
+        ./Output/Bin/LinuxNinjaGccDev64/GameEngineTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/GameEngineTest
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    condition: succeededOrFailed()
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)
+      ArtifactName: drop
+      publishLocation: 'Container'
+
+  # - task: PublishBuildArtifacts@1
+  #   displayName: 'Publish Artifact: Bin'
+  #   condition: failed()
+  #   inputs:
+  #     PathtoPublish: $(System.DefaultWorkingDirectory)/Output/Bin/LinuxNinjaGccDev64
+  #     ArtifactName: Bin
+...

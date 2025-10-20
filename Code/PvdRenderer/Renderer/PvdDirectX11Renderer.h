@@ -8,19 +8,19 @@
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <JVDSDK/Recording/JvdRecordingTypes.h>
-#include <VulkanRenderer/VulkanRendererModule.h>
+#include <DirectX11Renderer/DirectX11RendererModule.h>
 
-/// \brief Lightweight facade that converts JVD frame data into Vulkan instance buffers and drives the Vulkan renderer.
-class NS_PVDRENDERER_DLL nsPvdVulkanRenderer : public nsPvdRendererInterface
+/// \brief Lightweight facade that converts JVD frame data into DirectX11 instance buffers and drives the DirectX11 renderer.
+class NS_PVDRENDERER_DLL nsPvdDirectX11Renderer : public nsPvdRendererInterface
 {
 public:
-  nsPvdVulkanRenderer();
-  ~nsPvdVulkanRenderer();
+  nsPvdDirectX11Renderer();
+  ~nsPvdDirectX11Renderer();
 
-  nsResult Initialize(const nsVulkanRendererCreateInfo& createInfo);
+  nsResult Initialize(const nsDirectX11RendererCreateInfo& createInfo);
 
   // nsPvdRendererInterface implementation
-  virtual nsPvdRendererType GetRendererType() const override { return nsPvdRendererType::Vulkan; }
+  virtual nsPvdRendererType GetRendererType() const override { return nsPvdRendererType::DirectX11; }
   virtual void Deinitialize() override;
   virtual bool IsInitialized() const override;
   virtual void SetBackBufferSize(nsUInt32 uiWidth, nsUInt32 uiHeight) override;
@@ -31,8 +31,8 @@ public:
 private:
   void ConvertFrameToInstances(const nsJvdFrame& frame);
 
-  nsUniquePtr<nsVulkanRenderer> m_pRenderer;
-  nsDynamicArray<nsVulkanInstanceData> m_Instances;
+  nsUniquePtr<nsDirectX11Renderer> m_pRenderer;
+  nsDynamicArray<nsDirectX11InstanceData> m_Instances;
   nsColor m_ColorActive;
   nsColor m_ColorSleeping;
 };

@@ -7,6 +7,7 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 set(PVD_RENDERER_SOURCES
   PvdRendererPCH.cpp
   Renderer/PvdVulkanRenderer.cpp
+  Renderer/PvdDirectX11Renderer.cpp
 )
 
 message(STATUS "PVD_RENDERER_SOURCES=${PVD_RENDERER_SOURCES}")
@@ -31,4 +32,5 @@ target_link_libraries(${PROJECT_NAME}
     Foundation
     JVDSDK
     VulkanRenderer
+    DirectX11Renderer
 )
